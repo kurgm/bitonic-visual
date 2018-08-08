@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/kurgm/bitonic-visual.svg?branch=master)](https://travis-ci.org/kurgm/bitonic-visual)
 
-Visualize bitonic sort algorithm
+[Visualize bitonic sort algorithm](https://kurgm.github.io/bitonic-visual/)
 
 バイトニックソートを可視化したかっただけ
 
