@@ -1,7 +1,7 @@
 {
   "name": "bitonic-visual",
   "version": "1.0.0",
-  "description": "",
+  "description": "Visualize bitonic sort algorithm",
   "main": "index.js",
   "scripts": {
     "build": "parcel build src/index.pug",
@@ -9,7 +9,7 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Kurogoma",
   "license": "MIT",
   "dependencies": {
     "react": "^16.4.2",
@@ -22,5 +22,13 @@
     "pug": "^2.0.3",
     "tslint": "^5.11.0",
     "typescript": "^3.0.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurgm/bitonic-visual.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kurgm/bitonic-visual/issues"
+  },
+  "homepage": "https://github.com/kurgm/bitonic-visual#readme"
 }
