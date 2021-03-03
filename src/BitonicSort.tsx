@@ -126,7 +126,7 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
     stage: [1, 0],
     variant: SortVariant.monotonic,
   };
-  public render() {
+  public render(): JSX.Element {
     const maxValue = Math.max(...this.state.array);
     const barWidth = this.props.width / this.state.array.length;
     return (
