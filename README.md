@@ -1,6 +1,6 @@
 # bitonic-visual
 
-[![Build Status](https://travis-ci.org/kurgm/bitonic-visual.svg?branch=master)](https://travis-ci.org/kurgm/bitonic-visual)
+[![Node.js CI](https://github.com/kurgm/bitonic-visual/workflows/Node.js%20CI/badge.svg)](https://github.com/kurgm/bitonic-visual/actions?query=workflow%3A%22Node.js+CI%22)
 
 [Visualize bitonic sort algorithm](https://kurgm.github.io/bitonic-visual/)
 
