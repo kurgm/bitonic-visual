@@ -6,34 +6,34 @@ const nElem_options = [2, 4, 8, 16, 32, 64, 128, 256, 512];
 
 export interface ResetOption {
   nElem: number;
+  sortVariant: SortVariant;
 }
 
 export interface OptionControllerProps {
-  disabled: boolean;
-  mode: SortVariant;
-  onModeChange: (mode: SortVariant) => void;
   canReset: boolean;
   onReset: (opt: ResetOption) => void;
 }
 
 const OptionController: React.FC<OptionControllerProps> = (props) => {
-  const { onModeChange, onReset } = props;
+  const { onReset } = props;
 
   const [nElem, setNElem] = React.useState(32);
+  const [sortVariant, setSortVariant] = React.useState(SortVariant.monotonic);
 
   const handleNElemChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
     const newNElem = parseInt(evt.currentTarget.value, 10);
     setNElem(newNElem);
   }, []);
-  const handleModeChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleVariantChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
     const newMode = parseInt(evt.currentTarget.value, 10) as SortVariant;
-    onModeChange(newMode);
-  }, [onModeChange]);
+    setSortVariant(newMode);
+  }, []);
   const handleReset = React.useCallback(() => {
     onReset({
       nElem,
+      sortVariant,
     });
-  }, [nElem, onReset]);
+  }, [nElem, sortVariant, onReset]);
 
   return (
     <div>
@@ -47,10 +47,7 @@ const OptionController: React.FC<OptionControllerProps> = (props) => {
       </label>
       <label>
         Mode:
-        <select
-          onChange={handleModeChange} value={props.mode}
-          disabled={props.disabled}
-        >
+        <select onChange={handleVariantChange} value={sortVariant}>
           <option value={SortVariant.monotonic}>flip</option>
           <option value={SortVariant.bitonic}>shift</option>
         </select>

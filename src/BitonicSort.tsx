@@ -153,12 +153,6 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
             onNonstopChange={this.handleNonstop}
           />
           <OptionController
-            disabled={!(
-              this.state.completed
-              || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0
-            )}
-            mode={this.state.variant}
-            onModeChange={this.handleMode}
             canReset={this.state.phase === Phase.waiting}
             onReset={this.handleReset}
           />
@@ -211,20 +205,12 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
       completed: false,
       phase: Phase.waiting,
       stage: [1, 0],
+      variant: opt.sortVariant,
     });
   }
   private handleNonstop = (nonstop: boolean) => {
     this.setState({
       nonstop,
-    });
-  }
-  private handleMode = (variant: SortVariant) => {
-    if (!(this.state.completed
-      || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0)) {
-      return;
-    }
-    this.setState({
-      variant,
     });
   }
 }
