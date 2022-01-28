@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Phase, SortVariant } from "./enums";
-import OptionController from "./OptionController";
+import OptionController, { ResetOption } from "./OptionController";
 import StepController from "./StepController";
 
 const randomArray = (num: number) => {
@@ -103,7 +103,6 @@ export interface IBitonicSortState {
   array: number[];
   completed: boolean;
   nonstop: boolean;
-  numOfElem: number;
   phase: Phase;
   stage: [number, number];
   variant: SortVariant;
@@ -114,7 +113,6 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
     array: randomArray(32),
     completed: false,
     nonstop: false,
-    numOfElem: 32,
     phase: Phase.waiting,
     stage: [1, 0],
     variant: SortVariant.monotonic,
@@ -151,8 +149,6 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
           <StepController
             canStep={this.state.phase === Phase.waiting}
             onStep={this.handleStep}
-            canReset={this.state.phase === Phase.waiting}
-            onReset={this.handleReset}
             nonstop={this.state.nonstop}
             onNonstopChange={this.handleNonstop}
           />
@@ -161,10 +157,10 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
               this.state.completed
               || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0
             )}
-            nElem={this.state.numOfElem}
-            onNElemChange={this.handleNum}
             mode={this.state.variant}
             onModeChange={this.handleMode}
+            canReset={this.state.phase === Phase.waiting}
+            onReset={this.handleReset}
           />
         </div>
       </div>
@@ -206,12 +202,12 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
       stage: newStage,
     });
   }
-  private handleReset = () => {
+  private handleReset = (opt: ResetOption) => {
     if (this.state.phase !== Phase.waiting) {
       return;
     }
     this.setState({
-      array: randomArray(this.state.numOfElem),
+      array: randomArray(opt.nElem),
       completed: false,
       phase: Phase.waiting,
       stage: [1, 0],
@@ -220,11 +216,6 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
   private handleNonstop = (nonstop: boolean) => {
     this.setState({
       nonstop,
-    });
-  }
-  private handleNum = (numOfElem: number) => {
-    this.setState({
-      numOfElem,
     });
   }
   private handleMode = (variant: SortVariant) => {
