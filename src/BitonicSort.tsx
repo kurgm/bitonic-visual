@@ -2,6 +2,7 @@ import React from "react";
 
 import { Phase, SortVariant } from "./enums";
 import OptionController, { ResetOption } from "./OptionController";
+import SortCanvas, { BinTransform } from "./SortCanvas";
 import StepController from "./StepController";
 
 const randomArray = (num: number) => {
@@ -49,50 +50,40 @@ const bitonicSortStep = (variant: SortVariant, array: number[], stage: [number, 
   return result;
 };
 
-const getTransform = (
-  variant: SortVariant, stage: [number, number], index: number, barWidth: number,
-): React.CSSProperties => {
+const getTransforms = (variant: SortVariant, nElem: number, stage: [number, number]): BinTransform[] => {
   const blockSize = 1 << stage[0];
   const shift = 1 << stage[1];
-  const blockStart = Math.floor(index / blockSize) * blockSize;
-  const subBlockStart = Math.floor(index / (shift * 2)) * (shift * 2);
-  const reverse = (blockStart / blockSize) % 2 === 1;
-  if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
-    // flip
+  return Array.from({ length: nElem }, (_, index): BinTransform => {
+    const blockStart = Math.floor(index / blockSize) * blockSize;
+    const subBlockStart = Math.floor(index / (shift * 2)) * (shift * 2);
+    if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
+      // flip
+      const center = subBlockStart + shift;
+      return (index - subBlockStart < shift)
+        ? {
+          type: "flip",
+          originOffset: center - index,
+        }
+        : null;
+    }
+    const reverse = (blockStart / blockSize) % 2 === 1;
+    if (variant === SortVariant.bitonic && reverse) {
+      // shift (reverse)
+      return (index - subBlockStart >= shift)
+        ? {
+          type: "shift",
+          amount: -shift,
+        }
+        : null;
+    }
+    // shift
     return (index - subBlockStart < shift)
       ? {
-        transform: "rotateY(180deg)",
+        type: "shift",
+        amount: shift,
       }
-      : {};
-  }
-  if (variant === SortVariant.bitonic && reverse) {
-    // shift (reverse)
-    return (index - subBlockStart >= shift)
-      ? {
-        transform: `translate(${-barWidth * shift}px, 0px)`,
-      }
-      : {};
-  }
-  // shift
-  return (index - subBlockStart < shift)
-    ? {
-      transform: `translate(${barWidth * shift}px, 0px)`,
-    }
-    : {};
-};
-
-const getTransformOrigin = (variant: SortVariant, stage: [number, number], index: number, barWidth: number) => {
-  if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
-    const shift = 1 << stage[1];
-    const subBlockStart = Math.floor(index / (shift * 2)) * (shift * 2);
-    const center = subBlockStart + shift;
-    if (index - subBlockStart < shift) {
-      return {
-        transformOrigin: `${barWidth * (center - index)}px 50%`,
-      };
-    }
-  }
-  return {};
+      : null;
+  });
 };
 
 export interface IBitonicSortProps {
@@ -118,33 +109,16 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
     variant: SortVariant.monotonic,
   };
   public render(): JSX.Element {
-    const maxValue = Math.max(...this.state.array);
-    const barWidth = this.props.width / this.state.array.length;
     return (
       <div>
-        <div className="canvas" style={{
-          height: `${this.props.height}px`,
-          width: `${this.props.width}px`,
-        }}>
-          {this.state.array.map((n, i) => (
-            <div
-              key={i}
-              className="bar"
-              style={{
-                bottom: "0px",
-                height: `${this.props.height / maxValue * n}px`,
-                left: `${barWidth * i}px`,
-                width: `${barWidth}px`,
-                ...(this.state.phase === Phase.animationIn)
-                && getTransform(this.state.variant, this.state.stage, i, barWidth),
-                ...getTransformOrigin(this.state.variant, this.state.stage, i, barWidth),
-              }}
-              {...(i === 0) && {
-                onTransitionEnd: this.handleTransitionEnd,
-              }}
-            />
-          ))}
-        </div>
+        <SortCanvas
+          width={this.props.width}
+          height={this.props.height}
+          array={this.state.array}
+          phase={this.state.phase}
+          transforms={getTransforms(this.state.variant, this.state.array.length, this.state.stage)}
+          onTransitionEnd={this.handleTransitionEnd}
+        />
         <div className="controller">
           <StepController
             canStep={this.state.phase === Phase.waiting}
