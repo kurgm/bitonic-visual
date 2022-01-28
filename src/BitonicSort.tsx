@@ -1,5 +1,9 @@
 import React from "react";
 
+import { Phase, SortVariant } from "./enums";
+import OptionController from "./OptionController";
+import StepController from "./StepController";
+
 const randomArray = (num: number) => {
   const arr: Array<[number, number]> = [];
   for (let i = 1; i <= num; i++) {
@@ -7,11 +11,6 @@ const randomArray = (num: number) => {
   }
   return arr.sort((a, b) => a[0] - b[0]).map((e) => e[1]);
 };
-
-enum SortVariant {
-  bitonic,
-  monotonic,
-}
 
 const sortElement = (array: number[], index1: number, index2: number) => {
   if (array[index1] > array[index2]) {
@@ -96,12 +95,6 @@ const getTransformOrigin = (variant: SortVariant, stage: [number, number], index
   return {};
 };
 
-enum Phase {
-  waiting,
-  animationIn,
-  animationOut,
-}
-
 export interface IBitonicSortProps {
   width: number;
   height: number;
@@ -155,35 +148,24 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
           ))}
         </div>
         <div className="controller">
-          <div>
-            <button onClick={this.handleStep} disabled={this.state.phase !== Phase.waiting}>step</button>
-            <button onClick={this.handleReset} disabled={this.state.phase !== Phase.waiting}>reset</button>
-            <label>
-              <input type="checkbox" onChange={this.handleNonstop} checked={this.state.nonstop} />
-              Non-stop
-            </label>
-          </div>
-          <div>
-            <label>
-              N =
-              <select onChange={this.handleNum} value={this.state.numOfElem}>
-                {[2, 4, 8, 16, 32, 64, 128, 256, 512].map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Mode:
-              <select
-                onChange={this.handleMode} value={this.state.variant}
-                disabled={!(this.state.completed
-                  || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0)}
-              >
-                <option value={SortVariant.monotonic}>flip</option>
-                <option value={SortVariant.bitonic}>shift</option>
-              </select>
-            </label>
-          </div>
+          <StepController
+            canStep={this.state.phase === Phase.waiting}
+            onStep={this.handleStep}
+            canReset={this.state.phase === Phase.waiting}
+            onReset={this.handleReset}
+            nonstop={this.state.nonstop}
+            onNonstopChange={this.handleNonstop}
+          />
+          <OptionController
+            disabled={!(
+              this.state.completed
+              || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0
+            )}
+            nElem={this.state.numOfElem}
+            onNElemChange={this.handleNum}
+            mode={this.state.variant}
+            onModeChange={this.handleMode}
+          />
         </div>
       </div>
     );
@@ -235,23 +217,23 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
       stage: [1, 0],
     });
   }
-  private handleNonstop = (e: React.SyntheticEvent<HTMLInputElement>) => {
+  private handleNonstop = (nonstop: boolean) => {
     this.setState({
-      nonstop: e.currentTarget.checked,
+      nonstop,
     });
   }
-  private handleNum = (e: React.SyntheticEvent<HTMLSelectElement>) => {
+  private handleNum = (numOfElem: number) => {
     this.setState({
-      numOfElem: parseInt(e.currentTarget.value, 10),
+      numOfElem,
     });
   }
-  private handleMode = (e: React.SyntheticEvent<HTMLSelectElement>) => {
+  private handleMode = (variant: SortVariant) => {
     if (!(this.state.completed
       || this.state.phase === Phase.waiting && this.state.stage[0] === 1 && this.state.stage[1] === 0)) {
       return;
     }
     this.setState({
-      variant: parseInt(e.currentTarget.value, 10),
+      variant,
     });
   }
 }
