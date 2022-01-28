@@ -13,77 +13,60 @@ const randomArray = (num: number) => {
   return arr.sort((a, b) => a[0] - b[0]).map((e) => e[1]);
 };
 
-const sortElement = (array: number[], index1: number, index2: number) => {
-  if (array[index1] > array[index2]) {
-    const tmp = array[index2];
-    array[index2] = array[index1];
-    array[index1] = tmp;
-  }
-};
-
-const bitonicSortStep = (variant: SortVariant, array: number[], stage: [number, number]) => {
-  const result = array.slice();
+const bitonicSortStepGeneric = (
+  variant: SortVariant, nElem: number, stage: [number, number],
+  callback: (smallIdx: number, largeIdx: number, isFlip: boolean) => void
+) => {
   const blockSize = 1 << stage[0];
   const shift = 1 << stage[1];
   let reverse = false;
-  for (let blockStart = 0; blockStart < array.length; blockStart += blockSize) {
+  for (let blockStart = 0; blockStart < nElem; blockStart += blockSize) {
     for (let subBlockStart = blockStart; subBlockStart < blockStart + blockSize; subBlockStart += 2 * shift) {
       if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
         // flip
         for (let i = 0; i < shift; i++) {
-          sortElement(result, subBlockStart + i, subBlockStart + 2 * shift - 1 - i);
+          callback(subBlockStart + i, subBlockStart + 2 * shift - 1 - i, true);
         }
       } else if (variant === SortVariant.bitonic && reverse) {
         // shift (reverse)
         for (let i = 0; i < shift; i++) {
-          sortElement(result, subBlockStart + shift + i, subBlockStart + i);
+          callback(subBlockStart + shift + i, subBlockStart + i, false);
         }
       } else {
         // shift
         for (let i = 0; i < shift; i++) {
-          sortElement(result, subBlockStart + i, subBlockStart + shift + i);
+          callback(subBlockStart + i, subBlockStart + shift + i, false);
         }
       }
     }
     reverse = !reverse;
   }
+};
+
+const bitonicSortStep = (variant: SortVariant, array: number[], stage: [number, number]) => {
+  const result = array.slice();
+  bitonicSortStepGeneric(variant, array.length, stage, (smallIdx, largeIdx) => {
+    if (array[smallIdx] > array[largeIdx]) {
+      result[smallIdx] = array[largeIdx];
+      result[largeIdx] = array[smallIdx];
+    }
+  });
   return result;
 };
 
 const getTransforms = (variant: SortVariant, nElem: number, stage: [number, number]): BinTransform[] => {
-  const blockSize = 1 << stage[0];
-  const shift = 1 << stage[1];
-  return Array.from({ length: nElem }, (_, index): BinTransform => {
-    const blockStart = Math.floor(index / blockSize) * blockSize;
-    const subBlockStart = Math.floor(index / (shift * 2)) * (shift * 2);
-    if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
-      // flip
-      const center = subBlockStart + shift;
-      return (index - subBlockStart < shift)
-        ? {
-          type: "flip",
-          originOffset: center - index,
-        }
-        : null;
-    }
-    const reverse = (blockStart / blockSize) % 2 === 1;
-    if (variant === SortVariant.bitonic && reverse) {
-      // shift (reverse)
-      return (index - subBlockStart >= shift)
-        ? {
-          type: "shift",
-          amount: -shift,
-        }
-        : null;
-    }
-    // shift
-    return (index - subBlockStart < shift)
-      ? {
-        type: "shift",
-        amount: shift,
-      }
-      : null;
+  const result = new Array<BinTransform>(nElem).fill(null);
+  bitonicSortStepGeneric(variant, nElem, stage, (smallIdx, largeIdx, isFlip) => {
+    // if (result[smallIdx] || result[largeIdx]) { throw new Error("!"); }
+    result[smallIdx] = isFlip ? {
+      type: "flip",
+      originOffset: (largeIdx - smallIdx + 1) / 2,
+    } : {
+      type: "shift",
+      amount: largeIdx - smallIdx,
+    };
   });
+  return result;
 };
 
 export interface IBitonicSortProps {
