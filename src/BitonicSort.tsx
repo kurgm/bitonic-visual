@@ -5,6 +5,7 @@ import { Phase, SortVariant } from "./enums";
 import OptionController, { defaultOption, ResetOption } from "./OptionController";
 import SortCanvas, { BitonicSortStep } from "./SortCanvas";
 import StepController from "./StepController";
+import { ExhaustiveCheckError } from "./utils";
 
 const randomArray = (num: number) => {
   const arr: Array<[number, number]> = [];
@@ -81,22 +82,36 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
     if (phase !== Phase.waiting || completed) {
       return;
     }
-    setPhase(Phase.animationIn);
+    setPhase(Phase.animationToNext);
   }, [phase, completed]);
-  const handleAnimationInEnd = React.useCallback(() => {
-    setPhase(Phase.animationOut);
-    setProgress((progress) => progress + 1);
-  }, []);
-  const handleAnimationOutEnd = React.useCallback(() => {
-    setPhase(nonstop && !completed ? Phase.animationIn : Phase.waiting);
-  }, [nonstop, completed]);
   const handleTransitionEnd = React.useCallback(() => {
-    if (phase === Phase.animationIn) {
-      handleAnimationInEnd();
-    } else if (phase === Phase.animationOut) {
-      handleAnimationOutEnd();
+    switch (phase) {
+      case Phase.animationToNext: {
+        setPhase(Phase.animationFromPrev);
+        setProgress((progress) => progress + 1);
+        break;
+      }
+      case Phase.animationFromPrev: {
+        setPhase(nonstop && !completed ? Phase.animationToNext : Phase.waiting);
+        break;
+      }
+      case Phase.animationToPrev: {
+        setPhase(Phase.animationFromNext);
+        setProgress((progress) => progress - 1);
+        break;
+      }
+      case Phase.animationFromNext: {
+        setPhase(Phase.waiting);
+        break;
+      }
+      case Phase.waiting: {
+        break;
+      }
+      default: {
+        throw new ExhaustiveCheckError(phase);
+      } 
     }
-  }, [phase, handleAnimationInEnd, handleAnimationOutEnd]);
+  }, [phase, nonstop, completed]);
   const handleReset = React.useCallback((opt: ResetOption) => {
     if (phase !== Phase.waiting) {
       return;

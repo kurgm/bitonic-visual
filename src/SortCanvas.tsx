@@ -39,7 +39,9 @@ export interface SortCanvasProps {
 const SortCanvas: React.FC<SortCanvasProps> = (props) => {
   const { width, height, sortStep, phase, onTransitionEnd } = props;
   const array = sortStep.array;
-  const network = phase === Phase.animationOut ? sortStep.prevNetwork : sortStep.nextNetwork;
+  const network = (phase === Phase.animationFromPrev || phase === Phase.animationToPrev)
+    ? sortStep.prevNetwork
+    : sortStep.nextNetwork;
   const nElem = array.length;
   const maxValue = Math.max(...array);
   const csses = React.useMemo(() => (
@@ -59,7 +61,7 @@ const SortCanvas: React.FC<SortCanvasProps> = (props) => {
               width={1}
               height={value}
               style={{
-                ...(phase === Phase.animationIn) && { transform },
+                ...(phase === Phase.animationToNext || phase === Phase.animationToPrev) && { transform },
                 ...css,
               }}
               {...(i === 0) && { onTransitionEnd }}
