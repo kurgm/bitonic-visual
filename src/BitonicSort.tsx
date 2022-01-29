@@ -1,5 +1,6 @@
 import React from "react";
 
+import { bitonicSortNetwork } from "./bitonicSortNetwork";
 import { Phase, SortVariant } from "./enums";
 import OptionController, { ResetOption } from "./OptionController";
 import SortCanvas, { BinTransform } from "./SortCanvas";
@@ -17,42 +18,9 @@ const bitonicSortStepGeneric = (
   variant: SortVariant, nElem: number, stage: [number, number],
   callback: (smallIdx: number, largeIdx: number, isFlip: boolean) => void
 ) => {
-  const blockSize = 1 << stage[0];
-  const subblockSizeHalf = 1 << stage[1];
-  const flipRightSubblock = (start: number) => {
-    for (let i = 0; i < subblockSizeHalf; i++) {
-      callback(start + i, start + 2 * subblockSizeHalf - 1 - i, true);
-    }
-  };
-  const shiftLeftSubblock = (start: number) => {
-    for (let i = 0; i < subblockSizeHalf; i++) {
-      callback(start + subblockSizeHalf + i, start + i, false);
-    }
-  };
-  const shiftRightSubblock = (start: number) => {
-    for (let i = 0; i < subblockSizeHalf; i++) {
-      callback(start + i, start + subblockSizeHalf + i, false);
-    }
-  };
-  if (variant === SortVariant.monotonic) {
-    if (stage[0] - 1 === stage[1]) {
-      for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
-        flipRightSubblock(subBlockStart);
-      }
-    } else {
-      for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
-        shiftRightSubblock(subBlockStart);
-      }
-    }
-  } else {
-    for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
-      const reverse = (subBlockStart & blockSize) !== 0;
-      if (reverse) {
-        shiftLeftSubblock(subBlockStart);
-      } else {
-        shiftRightSubblock(subBlockStart);
-      }
-    }
+  const network = bitonicSortNetwork(variant, nElem, stage);
+  for (const [smallIdx, largeIdx] of network.pairs) {
+    callback(smallIdx, largeIdx, network.orderType === "flip");
   }
 };
 
