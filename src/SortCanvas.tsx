@@ -1,33 +1,25 @@
 import * as React from "react";
+
+import { BitonicNetwork } from "./bitonicSortNetwork";
 import { Phase } from "./enums";
 
-export type BinTransformShift = {
-  type: "shift";
-  amount: number;
-};
-export type BinTransformFlip = {
-  type: "flip";
-  originOffset: number;
-};
-export type BinTransform = BinTransformShift | BinTransformFlip | null;
-
-const binTransformCss = (binWidth: number, transform: BinTransform): React.CSSProperties => {
-  if (transform === null) {
-    return {};
-  }
-  switch (transform.type) {
-    case "shift": {
-      return {
-        transform: `translateX(${transform.amount * binWidth}px)`,
-      };
-    }
-    case "flip": {
-      return {
+const getTransforms = (nElem: number, network: BitonicNetwork): React.CSSProperties[] => {
+  const result = new Array<React.CSSProperties>(nElem).fill({});
+  for (const [smallIdx, largeIdx] of network.pairs) {
+    if (network.orderType === "flip") {
+      const originOffset = (largeIdx - smallIdx + 1) / 2;
+      result[smallIdx] = {
         transform: "rotateY(180deg)",
-        transformOrigin: `${transform.originOffset * binWidth}px 50%`
+        transformOrigin: `${originOffset * 100}% 50%`
+      };
+    } else {
+      const shiftAmount = largeIdx - smallIdx;
+      result[smallIdx] = {
+        transform: `translateX(${shiftAmount * 100}%)`,
       };
     }
   }
+  return result;
 };
 
 export interface SortCanvasProps {
@@ -35,18 +27,18 @@ export interface SortCanvasProps {
   width: number;
   array: number[];
   phase: Phase;
-  transforms: BinTransform[];
+  network: BitonicNetwork;
   onTransitionEnd: () => void;
 }
 
 const SortCanvas: React.FC<SortCanvasProps> = (props) => {
-  const { width, height, array, phase, transforms, onTransitionEnd } = props;
+  const { width, height, array, phase, network, onTransitionEnd } = props;
   const n = array.length;
   const binWidth = width / n;
   const maxValue = Math.max(...array);
   const csses = React.useMemo(() => (
-    transforms.map((transform) => binTransformCss(binWidth, transform))
-  ), [binWidth, transforms]);
+    getTransforms(n, network)
+  ), [n, network]);
   return (
     <div className="canvas" style={{
       height: `${height}px`,

@@ -1,9 +1,9 @@
 import React from "react";
 
-import { bitonicSortNetwork } from "./bitonicSortNetwork";
+import { BitonicNetwork, bitonicSortNetwork } from "./bitonicSortNetwork";
 import { Phase, SortVariant } from "./enums";
 import OptionController, { ResetOption } from "./OptionController";
-import SortCanvas, { BinTransform } from "./SortCanvas";
+import SortCanvas from "./SortCanvas";
 import StepController from "./StepController";
 
 const randomArray = (num: number) => {
@@ -14,39 +14,14 @@ const randomArray = (num: number) => {
   return arr.sort((a, b) => a[0] - b[0]).map((e) => e[1]);
 };
 
-const bitonicSortStepGeneric = (
-  variant: SortVariant, nElem: number, stage: [number, number],
-  callback: (smallIdx: number, largeIdx: number, isFlip: boolean) => void
-) => {
-  const network = bitonicSortNetwork(variant, nElem, stage);
-  for (const [smallIdx, largeIdx] of network.pairs) {
-    callback(smallIdx, largeIdx, network.orderType === "flip");
-  }
-};
-
-const bitonicSortStep = (variant: SortVariant, array: number[], stage: [number, number]) => {
+const bitonicSortStep = (array: number[], network: BitonicNetwork) => {
   const result = array.slice();
-  bitonicSortStepGeneric(variant, array.length, stage, (smallIdx, largeIdx) => {
+  for (const [smallIdx, largeIdx] of network.pairs) {
     if (array[smallIdx] > array[largeIdx]) {
       result[smallIdx] = array[largeIdx];
       result[largeIdx] = array[smallIdx];
     }
-  });
-  return result;
-};
-
-const getTransforms = (variant: SortVariant, nElem: number, stage: [number, number]): BinTransform[] => {
-  const result = new Array<BinTransform>(nElem).fill(null);
-  bitonicSortStepGeneric(variant, nElem, stage, (smallIdx, largeIdx, isFlip) => {
-    // if (result[smallIdx] || result[largeIdx]) { throw new Error("!"); }
-    result[smallIdx] = isFlip ? {
-      type: "flip",
-      originOffset: (largeIdx - smallIdx + 1) / 2,
-    } : {
-      type: "shift",
-      amount: largeIdx - smallIdx,
-    };
-  });
+  }
   return result;
 };
 
@@ -73,6 +48,7 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
     variant: SortVariant.monotonic,
   };
   public render(): JSX.Element {
+    const network = bitonicSortNetwork(this.state.variant, this.state.array.length, this.state.stage);
     return (
       <div>
         <SortCanvas
@@ -80,7 +56,7 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
           height={this.props.height}
           array={this.state.array}
           phase={this.state.phase}
-          transforms={getTransforms(this.state.variant, this.state.array.length, this.state.stage)}
+          network={network}
           onTransitionEnd={this.handleTransitionEnd}
         />
         <div className="controller">
@@ -115,7 +91,8 @@ export default class BitonicSort extends React.Component<IBitonicSortProps, IBit
     }
   }
   private handleAnimationInEnd = () => {
-    const newArray = bitonicSortStep(this.state.variant, this.state.array, this.state.stage);
+    const network = bitonicSortNetwork(this.state.variant, this.state.array.length, this.state.stage);
+    const newArray = bitonicSortStep(this.state.array, network);
     this.setState({
       array: newArray,
       phase: Phase.animationOut,
