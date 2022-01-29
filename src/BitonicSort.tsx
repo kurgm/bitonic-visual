@@ -41,7 +41,7 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
     array: randomArray(32),
     phase: Phase.waiting,
     progress: 0,
-    variant: SortVariant.monotonic,
+    variant: "sawtooth",
   });
   const setState = (newState: Partial<IBitonicSortState>) => {
     setState_((state) => ({ ...state, ...newState }));
@@ -107,6 +107,10 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         onTransitionEnd={handleTransitionEnd}
       />
       <div className="controller">
+        <div>
+          N = {state.array.length},
+          Mode = {state.variant}
+        </div>
         <StepController
           canStep={state.phase === Phase.waiting}
           onStep={handleStep}

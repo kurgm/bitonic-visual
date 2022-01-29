@@ -28,7 +28,7 @@ export const bitonicSortNetwork = (variant: SortVariant, nElem: number, stage: n
     }
   };
 
-  if (variant === SortVariant.monotonic) {
+  if (variant === "sawtooth") {
     if (stage - 1 === substage) {
       for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
         flipRightSubblock(subBlockStart);
