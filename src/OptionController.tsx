@@ -9,6 +9,11 @@ export interface ResetOption {
   sortVariant: SortVariant;
 }
 
+export const defaultOption: ResetOption = {
+  nElem: 32,
+  sortVariant: "sawtooth",
+};
+
 export interface OptionControllerProps {
   canReset: boolean;
   onReset: (opt: ResetOption) => void;
@@ -17,8 +22,8 @@ export interface OptionControllerProps {
 const OptionController: React.FC<OptionControllerProps> = (props) => {
   const { onReset } = props;
 
-  const [nElem, setNElem] = React.useState(32);
-  const [sortVariant, setSortVariant] = React.useState<SortVariant>("sawtooth");
+  const [nElem, setNElem] = React.useState(defaultOption.nElem);
+  const [sortVariant, setSortVariant] = React.useState(defaultOption.sortVariant);
 
   const handleNElemChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
     const newNElem = parseInt(evt.currentTarget.value, 10);

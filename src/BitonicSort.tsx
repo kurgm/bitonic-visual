@@ -2,7 +2,7 @@ import React from "react";
 
 import { BitonicNetwork, bitonicSortFullNetwork } from "./bitonicSortNetwork";
 import { Phase, SortVariant } from "./enums";
-import OptionController, { ResetOption } from "./OptionController";
+import OptionController, { defaultOption, ResetOption } from "./OptionController";
 import SortCanvas, { BitonicSortStep } from "./SortCanvas";
 import StepController from "./StepController";
 
@@ -54,6 +54,11 @@ const generateSortProcess = (variant: SortVariant, array: number[]): BitonicSort
   };
 };
 
+const generateSortProcessFromOpt = (opt: ResetOption) => {
+  const array = randomArray(opt.nElem);
+  return generateSortProcess(opt.sortVariant, array);
+};
+
 export interface IBitonicSortProps {
   width: number;
   height: number;
@@ -61,7 +66,7 @@ export interface IBitonicSortProps {
 
 const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
   const [sortProcess, setSortProcess] = React.useState(() => (
-    generateSortProcess("sawtooth", randomArray(32))
+    generateSortProcessFromOpt(defaultOption)
   ));
   const [phase, setPhase] = React.useState(Phase.waiting);
   const [progress, setProgress] = React.useState(0);
@@ -96,7 +101,7 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
     if (phase !== Phase.waiting) {
       return;
     }
-    setSortProcess(generateSortProcess(opt.sortVariant, randomArray(opt.nElem)));
+    setSortProcess(generateSortProcessFromOpt(opt));
     setPhase(Phase.waiting);
     setProgress(0);
   }, [phase]);
