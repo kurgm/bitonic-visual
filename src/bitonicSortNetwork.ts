@@ -7,9 +7,9 @@ export interface BitonicNetwork {
   pairs: IndexPair[];
 }
 
-export const bitonicSortNetwork = (variant: SortVariant, nElem: number, stage: [number, number]): BitonicNetwork => {
-  const blockSize = 1 << stage[0];
-  const subblockSizeHalf = 1 << stage[1];
+export const bitonicSortNetwork = (variant: SortVariant, nElem: number, stage: number, substage: number): BitonicNetwork => {
+  const blockSize = 1 << stage;
+  const subblockSizeHalf = 1 << substage;
 
   const pairs: IndexPair[] = [];
   const flipRightSubblock = (start: number) => {
@@ -29,7 +29,7 @@ export const bitonicSortNetwork = (variant: SortVariant, nElem: number, stage: [
   };
 
   if (variant === SortVariant.monotonic) {
-    if (stage[0] - 1 === stage[1]) {
+    if (stage - 1 === substage) {
       for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
         flipRightSubblock(subBlockStart);
       }
@@ -50,4 +50,14 @@ export const bitonicSortNetwork = (variant: SortVariant, nElem: number, stage: [
     }
   }
   return { orderType: "shift", pairs };
+};
+
+export const bitonicSortFullNetwork = (variant: SortVariant, nElem: number) => {
+  const result: BitonicNetwork[] = [];
+  for (let stage = 1; (1 << stage) <= nElem; stage++) {
+    for (let substage = stage - 1; substage >= 0; substage--) {
+      result.push(bitonicSortNetwork(variant, nElem, stage, substage));
+    }
+  }
+  return result;
 };

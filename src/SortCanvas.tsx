@@ -27,7 +27,7 @@ export interface SortCanvasProps {
   width: number;
   array: number[];
   phase: Phase;
-  network: BitonicNetwork;
+  network: BitonicNetwork | undefined;
   onTransitionEnd: () => void;
 }
 
@@ -37,7 +37,7 @@ const SortCanvas: React.FC<SortCanvasProps> = (props) => {
   const binWidth = width / n;
   const maxValue = Math.max(...array);
   const csses = React.useMemo(() => (
-    getTransforms(n, network)
+    network ? getTransforms(n, network) : null
   ), [n, network]);
   return (
     <div className="canvas" style={{
@@ -45,7 +45,7 @@ const SortCanvas: React.FC<SortCanvasProps> = (props) => {
       width: `${width}px`,
     }}>
       {array.map((n, i) => {
-        const { transform, ...css } = csses[i];
+        const { transform = undefined, ...css } = csses ? csses[i] : {};
         return (
           <div
             key={i}
