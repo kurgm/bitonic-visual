@@ -3,7 +3,7 @@ import React from "react";
 import { BitonicNetwork, bitonicSortFullNetwork } from "./bitonicSortNetwork";
 import { Phase, SortVariant } from "./enums";
 import OptionController, { ResetOption } from "./OptionController";
-import SortCanvas from "./SortCanvas";
+import SortCanvas, { BitonicSortStep } from "./SortCanvas";
 import StepController from "./StepController";
 
 const randomArray = (num: number) => {
@@ -25,58 +25,80 @@ const bitonicSortStep = (array: number[], network: BitonicNetwork) => {
   return result;
 };
 
+type BitonicSortProcess = {
+  steps: BitonicSortStep[];
+  variant: SortVariant;
+};
+
+const generateSortProcess = (variant: SortVariant, array: number[]): BitonicSortProcess => {
+  array = array.slice();
+  let prevNetwork: BitonicNetwork | null = null;
+  const steps: BitonicSortStep[] = [];
+  for (const network of bitonicSortFullNetwork(variant, array.length)) {
+    steps.push({
+      array,
+      nextNetwork: network,
+      prevNetwork,
+    });
+    array = bitonicSortStep(array, network);
+    prevNetwork = network;
+  }
+  steps.push({
+    array,
+    nextNetwork: null,
+    prevNetwork,
+  });
+  return {
+    steps,
+    variant,
+  };
+};
+
 export interface IBitonicSortProps {
   width: number;
   height: number;
 }
 interface IBitonicSortState {
-  array: number[];
+  sortProcess: BitonicSortProcess;
   phase: Phase;
   progress: number;
-  variant: SortVariant;
 }
 
 const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
-  const [state, setState_] = React.useState<IBitonicSortState>({
-    array: randomArray(32),
+  const [state, setState_] = React.useState((): IBitonicSortState => ({
+    sortProcess: generateSortProcess("sawtooth", randomArray(32)),
     phase: Phase.waiting,
     progress: 0,
-    variant: "sawtooth",
-  });
+  }));
   const setState = (newState: Partial<IBitonicSortState>) => {
     setState_((state) => ({ ...state, ...newState }));
   };
 
   const [nonstop, setNonstop] = React.useState(false);
 
-  const fullNetwork = React.useMemo(() => (
-    bitonicSortFullNetwork(state.variant, state.array.length)
-  ), [state.variant, state.array.length]);
+  const sortStep = state.sortProcess.steps[state.progress];
 
-  const network = fullNetwork[state.progress] as BitonicNetwork | undefined;
+  const completed = state.sortProcess.steps.length - 1 <= state.progress;
 
   const handleStep = React.useCallback(() => {
-    if (state.phase !== Phase.waiting || fullNetwork.length <= state.progress) {
+    if (state.phase !== Phase.waiting || completed) {
       return;
     }
     setState({
       phase: Phase.animationIn,
     });
-  }, [state.phase, fullNetwork.length, state.progress]);
+  }, [state.phase, completed]);
   const handleAnimationInEnd = React.useCallback(() => {
-    const newArray = network ? bitonicSortStep(state.array, network) : state.array;
     setState({
-      array: newArray,
       phase: Phase.animationOut,
-    });
-  }, [state.array, network]);
-  const handleAnimationOutEnd = React.useCallback(() => {
-    const completing = fullNetwork.length <= state.progress + 1;
-    setState({
-      phase: nonstop && !completing ? Phase.animationIn : Phase.waiting,
       progress: state.progress + 1,
     });
-  }, [fullNetwork.length, state.progress, nonstop]);
+  }, [state.progress]);
+  const handleAnimationOutEnd = React.useCallback(() => {
+    setState({
+      phase: nonstop && !completed ? Phase.animationIn : Phase.waiting,
+    });
+  }, [nonstop, completed]);
   const handleTransitionEnd = React.useCallback(() => {
     if (state.phase === Phase.animationIn) {
       handleAnimationInEnd();
@@ -89,10 +111,9 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       return;
     }
     setState({
-      array: randomArray(opt.nElem),
+      sortProcess: generateSortProcess(opt.sortVariant, randomArray(opt.nElem)),
       phase: Phase.waiting,
       progress: 0,
-      variant: opt.sortVariant,
     });
   }, [state.phase]);
 
@@ -101,15 +122,14 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       <SortCanvas
         width={props.width}
         height={props.height}
-        array={state.array}
+        sortStep={sortStep}
         phase={state.phase}
-        network={network}
         onTransitionEnd={handleTransitionEnd}
       />
       <div className="controller">
         <div>
-          N = {state.array.length},
-          Mode = {state.variant}
+          N = {sortStep.array.length},
+          Mode = {state.sortProcess.variant}
         </div>
         <StepController
           canStep={state.phase === Phase.waiting}

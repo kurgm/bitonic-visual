@@ -22,17 +22,24 @@ const getTransforms = (nElem: number, network: BitonicNetwork): React.CSSPropert
   return result;
 };
 
+export interface BitonicSortStep {
+  array: number[];
+  nextNetwork: BitonicNetwork | null;
+  prevNetwork: BitonicNetwork | null;
+}
+
 export interface SortCanvasProps {
   height: number;
   width: number;
-  array: number[];
   phase: Phase;
-  network: BitonicNetwork | undefined;
+  sortStep: BitonicSortStep;
   onTransitionEnd: () => void;
 }
 
 const SortCanvas: React.FC<SortCanvasProps> = (props) => {
-  const { width, height, array, phase, network, onTransitionEnd } = props;
+  const { width, height, sortStep, phase, onTransitionEnd } = props;
+  const array = sortStep.array;
+  const network = phase === Phase.animationOut ? sortStep.prevNetwork : sortStep.nextNetwork;
   const nElem = array.length;
   const maxValue = Math.max(...array);
   const csses = React.useMemo(() => (
