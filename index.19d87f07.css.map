@@ -1,1 +1,0 @@
-{"mappings":"AAAA,QACA,iBAAA,CACA,gBACA,CAEA,aACA,iBAAA,CACA,2BAAA,CACA,2BACA","sources":["./src/index.css"],"sourcesContent":[".canvas {\n  position: relative;\n  perspective: 2000;\n}\n\n.canvas .bar {\n  position: absolute;\n  background: rgba(255, 0, 0, 0.5);\n  transition: transform 1s 0.1s;\n}\n"],"names":[],"version":3,"file":"index.19d87f07.css.map"}
