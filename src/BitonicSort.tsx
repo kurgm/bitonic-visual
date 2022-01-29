@@ -18,28 +18,41 @@ const bitonicSortStepGeneric = (
   callback: (smallIdx: number, largeIdx: number, isFlip: boolean) => void
 ) => {
   const blockSize = 1 << stage[0];
-  const shift = 1 << stage[1];
-  let reverse = false;
-  for (let blockStart = 0; blockStart < nElem; blockStart += blockSize) {
-    for (let subBlockStart = blockStart; subBlockStart < blockStart + blockSize; subBlockStart += 2 * shift) {
-      if (variant === SortVariant.monotonic && stage[0] - 1 === stage[1]) {
-        // flip
-        for (let i = 0; i < shift; i++) {
-          callback(subBlockStart + i, subBlockStart + 2 * shift - 1 - i, true);
-        }
-      } else if (variant === SortVariant.bitonic && reverse) {
-        // shift (reverse)
-        for (let i = 0; i < shift; i++) {
-          callback(subBlockStart + shift + i, subBlockStart + i, false);
-        }
-      } else {
-        // shift
-        for (let i = 0; i < shift; i++) {
-          callback(subBlockStart + i, subBlockStart + shift + i, false);
-        }
+  const subblockSizeHalf = 1 << stage[1];
+  const flipRightSubblock = (start: number) => {
+    for (let i = 0; i < subblockSizeHalf; i++) {
+      callback(start + i, start + 2 * subblockSizeHalf - 1 - i, true);
+    }
+  };
+  const shiftLeftSubblock = (start: number) => {
+    for (let i = 0; i < subblockSizeHalf; i++) {
+      callback(start + subblockSizeHalf + i, start + i, false);
+    }
+  };
+  const shiftRightSubblock = (start: number) => {
+    for (let i = 0; i < subblockSizeHalf; i++) {
+      callback(start + i, start + subblockSizeHalf + i, false);
+    }
+  };
+  if (variant === SortVariant.monotonic) {
+    if (stage[0] - 1 === stage[1]) {
+      for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
+        flipRightSubblock(subBlockStart);
+      }
+    } else {
+      for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
+        shiftRightSubblock(subBlockStart);
       }
     }
-    reverse = !reverse;
+  } else {
+    for (let subBlockStart = 0; subBlockStart < nElem; subBlockStart += 2 * subblockSizeHalf) {
+      const reverse = (subBlockStart & blockSize) !== 0;
+      if (reverse) {
+        shiftLeftSubblock(subBlockStart);
+      } else {
+        shiftRightSubblock(subBlockStart);
+      }
+    }
   }
 };
 
