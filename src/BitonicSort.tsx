@@ -58,64 +58,48 @@ export interface IBitonicSortProps {
   width: number;
   height: number;
 }
-interface IBitonicSortState {
-  sortProcess: BitonicSortProcess;
-  phase: Phase;
-  progress: number;
-}
 
 const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
-  const [state, setState_] = React.useState((): IBitonicSortState => ({
-    sortProcess: generateSortProcess("sawtooth", randomArray(32)),
-    phase: Phase.waiting,
-    progress: 0,
-  }));
-  const setState = (newState: Partial<IBitonicSortState>) => {
-    setState_((state) => ({ ...state, ...newState }));
-  };
+  const [sortProcess, setSortProcess] = React.useState(() => (
+    generateSortProcess("sawtooth", randomArray(32))
+  ));
+  const [phase, setPhase] = React.useState(Phase.waiting);
+  const [progress, setProgress] = React.useState(0);
 
   const [nonstop, setNonstop] = React.useState(false);
 
-  const sortStep = state.sortProcess.steps[state.progress];
+  const sortStep = sortProcess.steps[progress];
 
-  const completed = state.sortProcess.steps.length - 1 <= state.progress;
+  const completed = sortProcess.steps.length - 1 <= progress;
 
   const handleStep = React.useCallback(() => {
-    if (state.phase !== Phase.waiting || completed) {
+    if (phase !== Phase.waiting || completed) {
       return;
     }
-    setState({
-      phase: Phase.animationIn,
-    });
-  }, [state.phase, completed]);
+    setPhase(Phase.animationIn);
+  }, [phase, completed]);
   const handleAnimationInEnd = React.useCallback(() => {
-    setState({
-      phase: Phase.animationOut,
-      progress: state.progress + 1,
-    });
-  }, [state.progress]);
+    setPhase(Phase.animationOut);
+    setProgress((progress) => progress + 1);
+  }, []);
   const handleAnimationOutEnd = React.useCallback(() => {
-    setState({
-      phase: nonstop && !completed ? Phase.animationIn : Phase.waiting,
-    });
+    setPhase(nonstop && !completed ? Phase.animationIn : Phase.waiting);
   }, [nonstop, completed]);
   const handleTransitionEnd = React.useCallback(() => {
-    if (state.phase === Phase.animationIn) {
+    if (phase === Phase.animationIn) {
       handleAnimationInEnd();
-    } else if (state.phase === Phase.animationOut) {
+    } else if (phase === Phase.animationOut) {
       handleAnimationOutEnd();
     }
-  }, [state.phase, handleAnimationInEnd, handleAnimationOutEnd]);
+  }, [phase, handleAnimationInEnd, handleAnimationOutEnd]);
   const handleReset = React.useCallback((opt: ResetOption) => {
-    if (state.phase !== Phase.waiting) {
+    if (phase !== Phase.waiting) {
       return;
     }
-    setState({
-      sortProcess: generateSortProcess(opt.sortVariant, randomArray(opt.nElem)),
-      phase: Phase.waiting,
-      progress: 0,
-    });
-  }, [state.phase]);
+    setSortProcess(generateSortProcess(opt.sortVariant, randomArray(opt.nElem)));
+    setPhase(Phase.waiting);
+    setProgress(0);
+  }, [phase]);
 
   return (
     <div>
@@ -123,22 +107,22 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         width={props.width}
         height={props.height}
         sortStep={sortStep}
-        phase={state.phase}
+        phase={phase}
         onTransitionEnd={handleTransitionEnd}
       />
       <div className="controller">
         <div>
           N = {sortStep.array.length},
-          Mode = {state.sortProcess.variant}
+          Mode = {sortProcess.variant}
         </div>
         <StepController
-          canStep={state.phase === Phase.waiting}
+          canStep={phase === Phase.waiting}
           onStep={handleStep}
           nonstop={nonstop}
           onNonstopChange={setNonstop}
         />
         <OptionController
-          canReset={state.phase === Phase.waiting}
+          canReset={phase === Phase.waiting}
           onReset={handleReset}
         />
       </div>
