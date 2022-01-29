@@ -51,6 +51,10 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
 
   const [nonstop, setNonstop] = React.useState(false);
 
+  const network = React.useMemo(() => (
+    bitonicSortNetwork(state.variant, state.array.length, state.stage)
+  ), [state.variant, state.array.length, state.stage]);
+
   const handleStep = React.useCallback(() => {
     if (state.phase !== Phase.waiting || state.completed) {
       return;
@@ -58,15 +62,14 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
     setState({
       phase: Phase.animationIn,
     });
-  }, [state]);
+  }, [state.phase, state.completed]);
   const handleAnimationInEnd = React.useCallback(() => {
-    const network = bitonicSortNetwork(state.variant, state.array.length, state.stage);
     const newArray = bitonicSortStep(state.array, network);
     setState({
       array: newArray,
       phase: Phase.animationOut,
     });
-  }, [state]);
+  }, [state.array, network]);
   const handleAnimationOutEnd = React.useCallback(() => {
     const newStage: [number, number] = [state.stage[0], state.stage[1] - 1];
     if (newStage[1] === -1) {
@@ -79,14 +82,14 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       phase: nonstop && !completed ? Phase.animationIn : Phase.waiting,
       stage: newStage,
     });
-  }, [state, nonstop]);
+  }, [state.stage, state.array.length, nonstop]);
   const handleTransitionEnd = React.useCallback(() => {
     if (state.phase === Phase.animationIn) {
       handleAnimationInEnd();
     } else if (state.phase === Phase.animationOut) {
       handleAnimationOutEnd();
     }
-  }, [state, handleAnimationInEnd, handleAnimationOutEnd]);
+  }, [state.phase, handleAnimationInEnd, handleAnimationOutEnd]);
   const handleReset = React.useCallback((opt: ResetOption) => {
     if (state.phase !== Phase.waiting) {
       return;
@@ -98,8 +101,8 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       stage: [1, 0],
       variant: opt.sortVariant,
     });
-  }, [state]);
-  const network = bitonicSortNetwork(state.variant, state.array.length, state.stage);
+  }, [state.phase]);
+
   return (
     <div>
       <SortCanvas
