@@ -14,7 +14,7 @@ export interface ResetOption {
 export const defaultOption: ResetOption = {
   nElem: 32,
   sortVariant: "sawtooth",
-  dataKind: "random",
+  dataKind: "shuffle",
 };
 
 export interface OptionControllerProps {
