@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { DataKind, dataKinds, SortVariant, sortVariants } from "./enums";
+import { DataKind, dataKinds } from "./data";
+import { SortVariant, sortVariants } from "./enums";
 
 const nElem_options = [2, 4, 8, 16, 32, 64, 128, 256, 512];
 

@@ -1,27 +1,12 @@
 import React from "react";
 
 import { BitonicNetwork, bitonicSortFullNetwork } from "./bitonicSortNetwork";
-import { DataKind, Phase, SortVariant } from "./enums";
+import { Phase, SortVariant } from "./enums";
 import OptionController, { defaultOption, ResetOption } from "./OptionController";
+import { generateData } from "./data";
 import SortCanvas, { BitonicSortStep } from "./SortCanvas";
 import StepController from "./StepController";
 import { ExhaustiveCheckError } from "./utils";
-
-const randomArray = (num: number) => {
-  const arr: Array<[number, number]> = [];
-  for (let i = 1; i <= num; i++) {
-    arr.push([Math.random(), i]);
-  }
-  return arr.sort((a, b) => a[0] - b[0]).map((e) => e[1]);
-};
-
-const generateData = (nElem: number, dataKind: DataKind): number[] => {
-  switch (dataKind) {
-    case "random": {
-      return randomArray(nElem);
-    }
-  }
-};
 
 const bitonicSortStep = (array: number[], network: BitonicNetwork) => {
   const result = array.slice();

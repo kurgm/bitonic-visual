@@ -12,9 +12,3 @@ export enum Phase {
   animationToPrev,
   animationFromNext,
 }
-
-export const dataKinds = [
-  "random",
-] as const;
-
-export type DataKind = (typeof dataKinds)[number];
