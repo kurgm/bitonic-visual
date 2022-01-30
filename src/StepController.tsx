@@ -2,7 +2,8 @@ import * as React from "react";
 
 export interface StepControllerProps {
   animating: boolean;
-  onStep: () => void;
+  onStepForward: () => void;
+  onStepBack: () => void;
   playing: boolean;
   onPlayPauseClick: () => void;
 }
@@ -10,13 +11,14 @@ export interface StepControllerProps {
 const StepController: React.FC<StepControllerProps> = (props) => {
   return (
     <div>
-      <button onClick={props.onStep} disabled={props.animating}>step</button>
+      <button onClick={props.onStepBack} disabled={props.animating}>&lt; step</button>
       <button
         disabled={!props.playing && props.animating}
         onClick={props.onPlayPauseClick}
       >
         {props.playing ? "pause" : "play"}
       </button>
+      <button onClick={props.onStepForward} disabled={props.animating}>step &gt;</button>
     </div>
   );
 };

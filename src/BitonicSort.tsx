@@ -74,24 +74,30 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
 
   const sortStep = sortProcess.steps[progress];
 
-  const completed = sortProcess.steps.length - 1 <= progress;
+  const hasPrev = sortStep.prevNetwork !== null;
+  const hasNext = sortStep.nextNetwork !== null;
 
   const [playing, setPlaying] = React.useState(false);
   const handlePlayPauseClick = React.useCallback(() => {
     if (playing) {
       setPlaying(false);
-    } else if (phase === Phase.waiting && !completed) {
+    } else if (phase === Phase.waiting && hasNext) {
       setPlaying(true);
       setPhase(Phase.animationToNext);
     }
-  }, [playing, phase, completed]);
+  }, [playing, phase, hasNext]);
 
-  const handleStep = React.useCallback(() => {
-    if (phase !== Phase.waiting || completed) {
-      return;
+  const handleStepBack = React.useCallback(() => {
+    if (phase === Phase.waiting && hasPrev) {
+      setPhase(Phase.animationToPrev);
     }
-    setPhase(Phase.animationToNext);
-  }, [phase, completed]);
+  }, [phase, hasPrev]);
+  const handleStepForward = React.useCallback(() => {
+    if (phase === Phase.waiting && hasNext) {
+      setPhase(Phase.animationToNext);
+    }
+  }, [phase, hasNext]);
+
   const handleTransitionEnd = React.useCallback(() => {
     switch (phase) {
       case Phase.animationToNext: {
@@ -100,7 +106,7 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         break;
       }
       case Phase.animationFromPrev: {
-        if (!completed && playing) {
+        if (hasNext && playing) {
           setPhase(Phase.animationToNext);
         } else {
           setPhase(Phase.waiting);
@@ -124,7 +130,8 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         throw new ExhaustiveCheckError(phase);
       } 
     }
-  }, [phase, playing, completed]);
+  }, [phase, playing, hasNext]);
+
   const handleReset = React.useCallback((opt: ResetOption) => {
     if (phase !== Phase.waiting) {
       return;
@@ -150,7 +157,8 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         </div>
         <StepController
           animating={phase !== Phase.waiting}
-          onStep={handleStep}
+          onStepForward={handleStepForward}
+          onStepBack={handleStepBack}
           playing={playing}
           onPlayPauseClick={handlePlayPauseClick}
         />
