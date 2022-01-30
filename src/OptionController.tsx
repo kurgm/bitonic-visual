@@ -1,17 +1,19 @@
 import * as React from "react";
 
-import { SortVariant, sortVariants } from "./enums";
+import { DataKind, dataKinds, SortVariant, sortVariants } from "./enums";
 
 const nElem_options = [2, 4, 8, 16, 32, 64, 128, 256, 512];
 
 export interface ResetOption {
   nElem: number;
   sortVariant: SortVariant;
+  dataKind: DataKind;
 }
 
 export const defaultOption: ResetOption = {
   nElem: 32,
   sortVariant: "sawtooth",
+  dataKind: "random",
 };
 
 export interface OptionControllerProps {
@@ -58,13 +60,15 @@ const OptionController: React.FC<OptionControllerProps> = (props) => {
 
   const [nElem, nElemSelect] = useSelect(defaultOption.nElem, nElem_options);
   const [sortVariant, sortVariantSelect] = useSelect(defaultOption.sortVariant, sortVariants);
+  const [dataKind, dataKindSelect] = useSelect(defaultOption.dataKind, dataKinds);
 
   const handleReset = React.useCallback(() => {
     onReset({
       nElem,
       sortVariant,
+      dataKind,
     });
-  }, [nElem, sortVariant, onReset]);
+  }, [nElem, sortVariant, dataKind, onReset]);
 
   return (
     <div>
@@ -73,6 +77,9 @@ const OptionController: React.FC<OptionControllerProps> = (props) => {
       </label>
       <label>
         Mode: {sortVariantSelect}
+      </label>
+      <label>
+        Data: {dataKindSelect}
       </label>
       <button onClick={handleReset} disabled={!props.canReset}>reset</button>
     </div>
