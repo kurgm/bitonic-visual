@@ -97,6 +97,11 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       setPhase(Phase.animationToNext);
     }
   }, [phase, hasNext]);
+  const handleProgressChange = React.useCallback((progress: number) => {
+    if (phase === Phase.waiting) {
+      setProgress(progress);
+    }
+  }, [phase]);
 
   const handleTransitionEnd = React.useCallback(() => {
     switch (phase) {
@@ -161,6 +166,9 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
           onStepBack={handleStepBack}
           playing={playing}
           onPlayPauseClick={handlePlayPauseClick}
+          progress={progress}
+          maxProgress={sortProcess.steps.length - 1}
+          onProgressChange={handleProgressChange}
         />
         <OptionController
           canReset={phase === Phase.waiting}
