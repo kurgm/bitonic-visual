@@ -1,25 +1,22 @@
 import * as React from "react";
 
 export interface StepControllerProps {
-  canStep: boolean;
+  animating: boolean;
   onStep: () => void;
-  nonstop: boolean;
-  onNonstopChange: (value: boolean) => void;
+  playing: boolean;
+  onPlayPauseClick: () => void;
 }
 
 const StepController: React.FC<StepControllerProps> = (props) => {
-  const { onNonstopChange } = props;
-  const handleNonstopChkboxChange = React.useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    onNonstopChange(evt.currentTarget.checked);
-  }, [onNonstopChange]);
-
   return (
     <div>
-      <button onClick={props.onStep} disabled={!props.canStep}>step</button>
-      <label>
-        <input type="checkbox" onChange={handleNonstopChkboxChange} checked={props.nonstop} />
-        Non-stop
-      </label>
+      <button onClick={props.onStep} disabled={props.animating}>step</button>
+      <button
+        disabled={!props.playing && props.animating}
+        onClick={props.onPlayPauseClick}
+      >
+        {props.playing ? "pause" : "play"}
+      </button>
     </div>
   );
 };

@@ -72,11 +72,19 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
   const [phase, setPhase] = React.useState(Phase.waiting);
   const [progress, setProgress] = React.useState(0);
 
-  const [nonstop, setNonstop] = React.useState(false);
-
   const sortStep = sortProcess.steps[progress];
 
   const completed = sortProcess.steps.length - 1 <= progress;
+
+  const [playing, setPlaying] = React.useState(false);
+  const handlePlayPauseClick = React.useCallback(() => {
+    if (playing) {
+      setPlaying(false);
+    } else if (phase === Phase.waiting && !completed) {
+      setPlaying(true);
+      setPhase(Phase.animationToNext);
+    }
+  }, [playing, phase, completed]);
 
   const handleStep = React.useCallback(() => {
     if (phase !== Phase.waiting || completed) {
@@ -92,7 +100,12 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         break;
       }
       case Phase.animationFromPrev: {
-        setPhase(nonstop && !completed ? Phase.animationToNext : Phase.waiting);
+        if (!completed && playing) {
+          setPhase(Phase.animationToNext);
+        } else {
+          setPhase(Phase.waiting);
+          setPlaying(false);
+        }
         break;
       }
       case Phase.animationToPrev: {
@@ -111,7 +124,7 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
         throw new ExhaustiveCheckError(phase);
       } 
     }
-  }, [phase, nonstop, completed]);
+  }, [phase, playing, completed]);
   const handleReset = React.useCallback((opt: ResetOption) => {
     if (phase !== Phase.waiting) {
       return;
@@ -136,10 +149,10 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
           Mode = {sortProcess.variant}
         </div>
         <StepController
-          canStep={phase === Phase.waiting}
+          animating={phase !== Phase.waiting}
           onStep={handleStep}
-          nonstop={nonstop}
-          onNonstopChange={setNonstop}
+          playing={playing}
+          onPlayPauseClick={handlePlayPauseClick}
         />
         <OptionController
           canReset={phase === Phase.waiting}
