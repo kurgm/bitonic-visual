@@ -74,7 +74,10 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
   const handlePlayPauseClick = React.useCallback(() => {
     if (playing) {
       setPlaying(false);
-    } else if (phase === Phase.waiting && hasNext) {
+    } else if (phase === Phase.waiting) {
+      if (!hasNext) {
+        setProgress(0);
+      }
       setPlaying(true);
       setPhase(Phase.animationToNext);
     }
