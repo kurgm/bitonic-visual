@@ -36,6 +36,7 @@ const StepController: React.FC<StepControllerProps> = (props) => {
         value={props.progress}
         min={0}
         max={props.maxProgress}
+        step={1}
         onChange={handleProgressChange}
         readOnly={props.animating}
       />
