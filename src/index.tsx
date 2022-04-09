@@ -5,9 +5,11 @@ import BitonicSort from "./BitonicSort";
 
 document.addEventListener("DOMContentLoaded", () => {
   ReactDOM.createRoot(document.getElementById("app")!).render(
-    <BitonicSort
-      width={384}
-      height={288}
-    />,
+    <React.StrictMode>
+      <BitonicSort
+        width={384}
+        height={288}
+      />
+    </React.StrictMode>
   );
 });
