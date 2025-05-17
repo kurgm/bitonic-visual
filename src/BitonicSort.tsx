@@ -2,7 +2,10 @@ import React from "react";
 
 import { BitonicNetwork, bitonicSortFullNetwork } from "./bitonicSortNetwork";
 import { Phase, SortVariant } from "./enums";
-import OptionController, { defaultOption, ResetOption } from "./OptionController";
+import OptionController, {
+  defaultOption,
+  ResetOption,
+} from "./OptionController";
 import { generateData } from "./data";
 import SortCanvas, { BitonicSortStep } from "./SortCanvas";
 import StepController from "./StepController";
@@ -24,7 +27,10 @@ interface BitonicSortProcess {
   variant: SortVariant;
 }
 
-const generateSortProcess = (variant: SortVariant, array: number[]): BitonicSortProcess => {
+const generateSortProcess = (
+  variant: SortVariant,
+  array: number[],
+): BitonicSortProcess => {
   array = array.slice();
   let prevNetwork: BitonicNetwork | null = null;
   const steps: BitonicSortStep[] = [];
@@ -59,9 +65,9 @@ export interface IBitonicSortProps {
 }
 
 const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
-  const [sortProcess, setSortProcess] = React.useState(() => (
-    generateSortProcessFromOpt(defaultOption)
-  ));
+  const [sortProcess, setSortProcess] = React.useState(() =>
+    generateSortProcessFromOpt(defaultOption),
+  );
   const [phase, setPhase] = React.useState(Phase.waiting);
   const [progress, setProgress] = React.useState(0);
 
@@ -93,11 +99,14 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       setPhase(Phase.animationToNext);
     }
   }, [phase, hasNext]);
-  const handleProgressChange = React.useCallback((progress: number) => {
-    if (phase === Phase.waiting) {
-      setProgress(progress);
-    }
-  }, [phase]);
+  const handleProgressChange = React.useCallback(
+    (progress: number) => {
+      if (phase === Phase.waiting) {
+        setProgress(progress);
+      }
+    },
+    [phase],
+  );
 
   const handleTransitionEnd = React.useCallback(() => {
     switch (phase) {
@@ -129,18 +138,21 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       }
       default: {
         throw new ExhaustiveCheckError(phase);
-      } 
+      }
     }
   }, [phase, playing, hasNext]);
 
-  const handleReset = React.useCallback((opt: ResetOption) => {
-    if (phase !== Phase.waiting) {
-      return;
-    }
-    setSortProcess(generateSortProcessFromOpt(opt));
-    setPhase(Phase.waiting);
-    setProgress(0);
-  }, [phase]);
+  const handleReset = React.useCallback(
+    (opt: ResetOption) => {
+      if (phase !== Phase.waiting) {
+        return;
+      }
+      setSortProcess(generateSortProcessFromOpt(opt));
+      setPhase(Phase.waiting);
+      setProgress(0);
+    },
+    [phase],
+  );
 
   return (
     <div>
@@ -153,8 +165,7 @@ const BitonicSort: React.FC<IBitonicSortProps> = (props) => {
       />
       <div className="controller">
         <div>
-          N = {sortStep.array.length},
-          Mode = {sortProcess.variant}
+          N = {sortStep.array.length}, Mode = {sortProcess.variant}
         </div>
         <StepController
           animating={phase !== Phase.waiting}

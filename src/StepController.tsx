@@ -13,15 +13,20 @@ export interface StepControllerProps {
 
 const StepController: React.FC<StepControllerProps> = (props) => {
   const { onProgressChange } = props;
-  const handleProgressChange = React.useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    onProgressChange(evt.currentTarget.valueAsNumber);
-  }, [onProgressChange]);
+  const handleProgressChange = React.useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      onProgressChange(evt.currentTarget.valueAsNumber);
+    },
+    [onProgressChange],
+  );
   return (
     <div>
       <button
         onClick={props.onStepBack}
         disabled={props.animating || props.progress <= 0}
-      >&lt; step</button>
+      >
+        &lt; step
+      </button>
       <button
         disabled={!props.playing && props.animating}
         onClick={props.onPlayPauseClick}
@@ -31,8 +36,11 @@ const StepController: React.FC<StepControllerProps> = (props) => {
       <button
         onClick={props.onStepForward}
         disabled={props.animating || props.progress >= props.maxProgress}
-      >step &gt;</button>
-      <input type="range"
+      >
+        step &gt;
+      </button>
+      <input
+        type="range"
         value={props.progress}
         min={0}
         max={props.maxProgress}

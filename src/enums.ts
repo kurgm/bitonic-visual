@@ -1,7 +1,4 @@
-export const sortVariants = [
-  "sawtooth",
-  "triangle",
-] as const;
+export const sortVariants = ["sawtooth", "triangle"] as const;
 
 export type SortVariant = (typeof sortVariants)[number];
 

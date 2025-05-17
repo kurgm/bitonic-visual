@@ -24,19 +24,24 @@ export interface OptionControllerProps {
 
 type OptionDesc<T extends string | number> =
   | T
-  | React.OptionHTMLAttributes<HTMLOptionElement> & { value: T; };
+  | (React.OptionHTMLAttributes<HTMLOptionElement> & { value: T });
 
 const useSelect = <T extends string | number>(
   initialValue: T | (() => T),
   options: readonly OptionDesc<T>[],
   props?: React.SelectHTMLAttributes<HTMLSelectElement>,
 ): [value: T, element: React.ReactNode] => {
-
   const [value, setValue] = React.useState<T>(initialValue);
-  const onChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = evt.currentTarget.value;
-    setValue((oldValue) => (typeof oldValue === "number" ? Number(newValue) : newValue) as T);
-  }, []);
+  const onChange = React.useCallback(
+    (evt: React.ChangeEvent<HTMLSelectElement>) => {
+      const newValue = evt.currentTarget.value;
+      setValue(
+        (oldValue) =>
+          (typeof oldValue === "number" ? Number(newValue) : newValue) as T,
+      );
+    },
+    [],
+  );
 
   const element = (
     <select {...props} value={value} onChange={onChange}>
@@ -47,9 +52,7 @@ const useSelect = <T extends string | number>(
             value: option,
           };
         }
-        return (
-          <option key={i} {...option} />
-        );
+        return <option key={i} {...option} />;
       })}
     </select>
   );
@@ -60,8 +63,14 @@ const OptionController: React.FC<OptionControllerProps> = (props) => {
   const { onReset } = props;
 
   const [nElem, nElemSelect] = useSelect(defaultOption.nElem, nElem_options);
-  const [sortVariant, sortVariantSelect] = useSelect(defaultOption.sortVariant, sortVariants);
-  const [dataKind, dataKindSelect] = useSelect(defaultOption.dataKind, dataKinds);
+  const [sortVariant, sortVariantSelect] = useSelect(
+    defaultOption.sortVariant,
+    sortVariants,
+  );
+  const [dataKind, dataKindSelect] = useSelect(
+    defaultOption.dataKind,
+    dataKinds,
+  );
 
   const handleReset = React.useCallback(() => {
     onReset({
@@ -73,16 +82,12 @@ const OptionController: React.FC<OptionControllerProps> = (props) => {
 
   return (
     <div>
-      <label>
-        N = {nElemSelect}
-      </label>
-      <label>
-        Mode: {sortVariantSelect}
-      </label>
-      <label>
-        Data: {dataKindSelect}
-      </label>
-      <button onClick={handleReset} disabled={!props.canReset}>reset</button>
+      <label>N = {nElemSelect}</label>
+      <label>Mode: {sortVariantSelect}</label>
+      <label>Data: {dataKindSelect}</label>
+      <button onClick={handleReset} disabled={!props.canReset}>
+        reset
+      </button>
     </div>
   );
 };
