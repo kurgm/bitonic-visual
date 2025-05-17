@@ -8,6 +8,7 @@
     "watch": "parcel src/index.pug",
     "lint": "eslint src",
     "check": "tsc --noEmit",
+    "format-check": "prettier . --check",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kurogoma",
@@ -19,13 +20,14 @@
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@parcel/transformer-pug": "^2.15.1",
-    "@stylistic/eslint-plugin": "^4.2.0",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
     "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "parcel": "^2.15.1",
+    "prettier": "3.5.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1"
   },
