@@ -2,6 +2,7 @@
   "name": "bitonic-visual",
   "version": "1.0.0",
   "description": "Visualize bitonic sort algorithm",
+  "type": "module",
   "scripts": {
     "build": "parcel build src/index.pug --public-url ./",
     "watch": "parcel src/index.pug",
