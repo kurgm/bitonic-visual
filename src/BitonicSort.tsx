@@ -19,10 +19,10 @@ const bitonicSortStep = (array: number[], network: BitonicNetwork) => {
   return result;
 };
 
-type BitonicSortProcess = {
+interface BitonicSortProcess {
   steps: BitonicSortStep[];
   variant: SortVariant;
-};
+}
 
 const generateSortProcess = (variant: SortVariant, array: number[]): BitonicSortProcess => {
   array = array.slice();
