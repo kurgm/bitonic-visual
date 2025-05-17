@@ -30,7 +30,7 @@ const useSelect = <T extends string | number>(
   initialValue: T | (() => T),
   options: readonly OptionDesc<T>[],
   props?: React.SelectHTMLAttributes<HTMLSelectElement>,
-): [value: T, element: JSX.Element] => {
+): [value: T, element: React.ReactNode] => {
 
   const [value, setValue] = React.useState<T>(initialValue);
   const onChange = React.useCallback((evt: React.ChangeEvent<HTMLSelectElement>) => {
