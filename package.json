@@ -7,6 +7,7 @@
     "build": "parcel build src/index.pug --public-url ./",
     "watch": "parcel src/index.pug",
     "lint": "eslint src",
+    "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kurogoma",
