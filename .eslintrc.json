@@ -9,7 +9,8 @@
     "sourceType": "module"
   },
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "@stylistic"
   ],
   "extends": [
     "eslint:recommended",
@@ -19,7 +20,7 @@
     "plugin:react-hooks/recommended"
   ],
   "rules": {
-    "@typescript-eslint/indent": [
+    "@stylistic/indent": [
       "error",
       2
     ]
