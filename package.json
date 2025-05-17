@@ -12,15 +12,15 @@
   "author": "Kurogoma",
   "license": "MIT",
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@parcel/transformer-pug": "^2.15.1",
     "@stylistic/eslint-plugin": "^4.2.0",
-    "@types/react": "^18.3.21",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
     "eslint": "^9.27.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
